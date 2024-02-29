@@ -1,11 +1,13 @@
 namespace SpriteKind {
     export const project = SpriteKind.create()
+    export const wait = SpriteKind.create()
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     target_angle += 1
 })
 controller.B.onEvent(ControllerButtonEvent.Pressed, function () {
     mySprite.y += -15
+    scene.cameraFollowSprite(mySprite)
 })
 controller.up.onEvent(ControllerButtonEvent.Repeated, function () {
     target_angle += 5
@@ -37,16 +39,29 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         myDart.setTrace(true)
         myDart.pow = power2
         myDart.lifespan = 10000
-        timer.after(500, function () {
+        timer.after(1000, function () {
             myDart.throwDart()
         })
     }
+})
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Player, function (sprite, otherSprite) {
+    sprites.destroy(mySprite, effects.disintegrate, 2000)
+    sprites.destroy(myDart)
+    game.gameOver(false)
 })
 controller.right.onEvent(ControllerButtonEvent.Repeated, function () {
     power2 += -5
 })
 controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     power2 += 1
+})
+sprites.onOverlap(SpriteKind.project, SpriteKind.wait, function (sprite, otherSprite) {
+    sprites.destroy(mySprite, effects.disintegrate, 2000)
+    sprites.destroy(myDart2)
+    game.gameOver(false)
+})
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Projectile, function (sprite, otherSprite) {
+    sprites.destroy(myDart, effects.disintegrate, 500)
 })
 controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
     power2 += -1
@@ -159,8 +174,9 @@ sprites.onCreated(SpriteKind.Projectile, function (sprite) {
     false
     )
     scene.cameraFollowSprite(myDart)
-    timer.after(5000, function () {
-        scene.cameraFollowSprite(mySprite)
+    mySprite.setKind(SpriteKind.wait)
+    timer.after(2000, function () {
+        mySprite.setKind(SpriteKind.Player)
     })
 })
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function (sprite, otherSprite) {
